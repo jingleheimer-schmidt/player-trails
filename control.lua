@@ -22,7 +22,7 @@ local palette = {
 local sin = math.sin
 local pi_div_3 = math.pi / 3
 
-function make_rainbow(rainbow, game_tick, player_settings)
+local function make_rainbow(rainbow, game_tick, player_settings)
   local index = rainbow.player_index
   local created_tick = rainbow.tick
   -- local player_settings = settings[index]
