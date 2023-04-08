@@ -43,6 +43,7 @@ local function make_rainbow(rainbow, game_tick, player_settings)
 end
 
 local function initialize_settings(index)
+  if not index then return end
   if not global.settings then
     global.settings = {}
   end
