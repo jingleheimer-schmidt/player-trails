@@ -143,45 +143,42 @@ end
 ---@param event EventData.on_tick
 local function on_tick(event)
   local render_ids = rendering.get_all_ids("player-trails")
-  if not render_ids then
-    return
-  end
+  if not render_ids then return end
   local settings = global.settings
   local game_tick = event.tick
   for _, id in pairs(render_ids) do
     local rainbow = global.sprites[id] or global.lights[id]
-    if rainbow then
-      if rainbow.tick_to_die <= game_tick then
-          global.sprites[id] = nil
-          global.lights[id] = nil
-      else
-        local player_settings = settings[rainbow.player_index]
-        local sprite = rainbow.sprite
-        local light = rainbow.light
-        local rainbow_color = make_rainbow(rainbow, game_tick, player_settings)
-        local size = rainbow.size
-        local animated_trail = player_settings["player-trail-animate"]
-        local rainbow_trail = player_settings["player-trail-type"] == "rainbow"
-        local tapered_trail = player_settings["player-trail-taper"]
-        if sprite then
-          if tapered_trail then
-            local scale = rendering.get_x_scale(sprite)
-            scale = scale - scale / size
-            rendering.set_x_scale(sprite, scale)
-            rendering.set_y_scale(sprite, scale)
-          end
-          if animated_trail and rainbow_trail then
-            rendering.set_color(sprite, rainbow_color)
-          end
-        elseif light then
-          if tapered_trail then
-            local scale = rendering.get_scale(light)
-            scale = scale - scale / size
-            rendering.set_scale(light, scale)
-          end
-          if animated_trail and rainbow_trail then
-            rendering.set_color(light, rainbow_color)
-          end
+    if not rainbow then return end
+    if rainbow.tick_to_die <= game_tick then
+        global.sprites[id] = nil
+        global.lights[id] = nil
+    else
+      local player_settings = settings[rainbow.player_index]
+      local sprite = rainbow.sprite
+      local light = rainbow.light
+      local rainbow_color = make_rainbow(rainbow, game_tick, player_settings)
+      local size = rainbow.size
+      local animated_trail = player_settings["player-trail-animate"]
+      local rainbow_trail = player_settings["player-trail-type"] == "rainbow"
+      local tapered_trail = player_settings["player-trail-taper"]
+      if sprite then
+        if tapered_trail then
+          local scale = rendering.get_x_scale(sprite)
+          scale = scale - scale / size
+          rendering.set_x_scale(sprite, scale)
+          rendering.set_y_scale(sprite, scale)
+        end
+        if animated_trail and rainbow_trail then
+          rendering.set_color(sprite, rainbow_color)
+        end
+      elseif light then
+        if tapered_trail then
+          local scale = rendering.get_scale(light)
+          scale = scale - scale / size
+          rendering.set_scale(light, scale)
+        end
+        if animated_trail and rainbow_trail then
+          rendering.set_color(light, rainbow_color)
         end
       end
     end
