@@ -61,21 +61,9 @@ local function initialize_settings(index)
   global.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
 end
 
-script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
-  initialize_settings(event.player_index)
-end)
-
-script.on_configuration_changed(function(event)
-  for each, player in pairs(game.players) do
-    initialize_settings(player.index)
-  end
-end)
-
-script.on_event(defines.events.on_player_joined_game, function(event)
-  initialize_settings(event.player_index)
-end)
-
-script.on_event(defines.events.on_player_changed_position, function(event)
+---called whenever a player changes position, draws a new sprite and light
+---@param event EventData.on_player_changed_position
+local function player_changed_position(event)
   local player_index = event.player_index
   if not (global.settings and global.settings[player_index]) then
     initialize_settings(player_index)
@@ -149,9 +137,11 @@ script.on_event(defines.events.on_player_changed_position, function(event)
     end
     rendering.set_color(light, rainbow_color)
   end
-end)
+end
 
-script.on_event(defines.events.on_tick, function(event)
+---runs every tick to update the rainbow color animation and taper
+---@param event EventData.on_tick
+local function on_tick(event)
   local render_ids = rendering.get_all_ids("player-trails")
   if not render_ids then
     return
@@ -195,4 +185,24 @@ script.on_event(defines.events.on_tick, function(event)
       end
     end
   end
+end
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+  if event.setting:match("^player%-trail%-") then
+    initialize_settings(event.player_index)
+  end
 end)
+
+script.on_configuration_changed(function(event)
+  for each, player in pairs(game.players) do
+    initialize_settings(player.index)
+  end
+end)
+
+script.on_event(defines.events.on_player_joined_game, function(event)
+  initialize_settings(event.player_index)
+end)
+
+script.on_event(defines.events.on_player_changed_position, player_changed_position)
+
+script.on_event(defines.events.on_tick, on_tick)
