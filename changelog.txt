@@ -4,6 +4,7 @@ Date: 07APR2023
   Changes:
     - fixed crash when mod settings were changed by another mod or script
     - fixed that trails synced to the player's color could not be tapered
+    - removed script impact warnings from mod setting descriptions and tooltips
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.1
 Date: 15JAN2022
