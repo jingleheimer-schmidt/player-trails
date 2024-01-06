@@ -1,11 +1,11 @@
 {
   "name": "player-trails",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "title": "Player Trails",
   "author": "asher_sky",
   "contact": "",
   "homepage": "",
-  "description": "Players create a glowing trail wherever they go",
+  "description": "Adds glowing rainbow trails wherever you go",
   "factorio_version": "1.1",
   "dependencies": [
 	"base"

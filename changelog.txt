@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.0.3
+Date: 05JAN2024
+  Changes:
+    - changed trail generation from on_player_changed_position to on_tick for smoother and more consistent trails
+    - slightly slowed the speed of all speed settings
+    - updated thumbnail
+  Bugfixes:
+    - fixed memory leak
+    - added migration to reset global mod data
+---------------------------------------------------------------------------------------------------
 Version: 0.0.2
 Date: 25APR2023
   Changes:
