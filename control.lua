@@ -190,14 +190,14 @@ local function draw_new_trail_segment(player)
         local last_render_position = global.last_render_positions[player_index]
         if distance(last_render_position, position) > 0.33 then
             local player_settings = global.settings[player_index]
-            local sprite = player_settings["player-trail-color"]
-            local light = player_settings["player-trail-glow"]
+            local draw_sprite = player_settings["player-trail-color"]
+            local draw_light = player_settings["player-trail-glow"]
             local event_tick = game.tick
-            if sprite or light then
+            if draw_sprite or draw_light then
                 local length = tonumber(player_settings["player-trail-length"])
                 local scale = tonumber(player_settings["player-trail-scale"])
-                if sprite then
-                    sprite = rendering.draw_sprite {
+                if draw_sprite then
+                    draw_sprite = rendering.draw_sprite {
                         sprite = "player-trail",
                         target = player.position,
                         surface = player.surface,
@@ -207,8 +207,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     global.sprites = global.sprites or {} ---@type table<integer, rainbow_data>
-                    global.sprites[sprite] = {
-                        render_id = sprite,
+                    global.sprites[draw_sprite] = {
+                        render_id = draw_sprite,
                         sprite = true,
                         light = false,
                         tick_to_die = event_tick + length,
@@ -224,10 +224,10 @@ local function draw_new_trail_segment(player)
                     if player_settings["player-trail-type"] == "rainbow" then
                         rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
                     end
-                    rendering.set_color(sprite, rainbow_color)
+                    rendering.set_color(draw_sprite, rainbow_color)
                 end
-                if light then
-                    light = rendering.draw_light {
+                if draw_light then
+                    draw_light = rendering.draw_light {
                         sprite = "player-trail",
                         target = player.position,
                         surface = player.surface,
@@ -237,8 +237,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     global.lights = global.lights or {} ---@type table<integer, rainbow_data>
-                    global.lights[light] = {
-                        render_id = light,
+                    global.lights[draw_light] = {
+                        render_id = draw_light,
                         sprite = false,
                         light = true,
                         tick_to_die = event_tick + length,
@@ -254,7 +254,7 @@ local function draw_new_trail_segment(player)
                     if player_settings["player-trail-type"] == "rainbow" then
                         rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
                     end
-                    rendering.set_color(light, rainbow_color)
+                    rendering.set_color(draw_light, rainbow_color)
                 end
                 global.last_render_positions[player_index] = position
             end
