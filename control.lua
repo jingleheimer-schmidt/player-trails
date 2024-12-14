@@ -68,6 +68,7 @@ end
 local function initialize_settings(index)
     local player_settings = settings.get_player_settings(index)
     if not player_settings then return end
+    --[[@type table<integer, table<string, boolean|string|number|Color>>]]
     storage.settings = {}
     storage.settings[index] = {}
     storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
@@ -80,8 +81,8 @@ local function initialize_settings(index)
     storage.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
     storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
     storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
-    storage.sprites = storage.sprites or {}
-    storage.lights = storage.lights or {}
+    --[[@type table<integer, trail_segment_data>]]
+    storage.trail_data = storage.trail_data or {}
 end
 
 ---@param pos1 MapPosition
@@ -123,9 +124,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    --[[@type table<integer, rainbow_data>]]
-                    storage.sprites = storage.sprites or {}
-                    storage.sprites[render_object_id] = {
+                    storage.trail_data = storage.trail_data or {}
+                    storage.trail_data[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
                         sprite = true,
@@ -156,9 +156,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    --[[@type table<integer, rainbow_data>]]
-                    storage.lights = storage.lights or {}
-                    storage.lights[render_object_id] = {
+                    storage.trail_data = storage.trail_data or {}
+                    storage.trail_data[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
                         sprite = false,
@@ -184,7 +183,7 @@ local function draw_new_trail_segment(player)
     end
 end
 
----@class rainbow_data
+---@class trail_segment_data
 ---@field render_id uint
 ---@field render_object LuaRenderObject
 ---@field sprite boolean
@@ -198,7 +197,7 @@ end
 ---@field amplitude number
 ---@field center number
 
----@param trail_data rainbow_data
+---@param trail_data trail_segment_data
 ---@param current_tick uint
 local function animate_existing_trail(trail_data, current_tick)
     local render_object = trail_data.render_object
@@ -226,18 +225,11 @@ local function animate_existing_trails()
     local current_tick = game.tick
     if not (current_tick % 3 == 0) then return end
     local next_tick = current_tick + 1
-    local render_groups = { storage.sprites, storage.lights }
-    for _, render_group in pairs(render_groups) do
-        local ids_to_remove = {}
-        for id, trail_data in pairs(render_group) do
-            if trail_data.tick_to_die <= next_tick then
-                ids_to_remove[#ids_to_remove + 1] = id
-            else
-                animate_existing_trail(trail_data, current_tick)
-            end
-        end
-        for _, id in pairs(ids_to_remove) do
-            render_group[id] = nil
+    for id, trail_data in pairs(storage.trail_data) do
+        if trail_data.tick_to_die <= next_tick then
+            storage.trail_data[id] = nil
+        else
+            animate_existing_trail(trail_data, current_tick)
         end
     end
 end
