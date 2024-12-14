@@ -278,27 +278,24 @@ end
 
 local function animate_existing_sprites()
     local current_tick = game.tick
+    if not (current_tick % 3 == 0) then return end
     for id, sprite_data in pairs(storage.sprites) do
         if sprite_data.tick_to_die <= current_tick + 1 then
             storage.sprites[id] = nil
-        elseif (current_tick % 3 == 0) and sprite_data.sprite then
+        elseif sprite_data.sprite then
             local render_object = sprite_data.render_object
             local player_index = sprite_data.player_index
-            local player_settings = storage.settings[player_index]
-            local created_tick = player_settings["player-trail-sync"] and player_index or sprite_data.tick
-            local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, sprite_data.frequency, sprite_data.amplitude, sprite_data.center)
             local scale = sprite_data.scale
-            local max_scale = sprite_data.max_scale
-            local animated_trail = player_settings["player-trail-animate"]
-            local rainbow_trail = player_settings["player-trail-type"] == "rainbow"
-            local tapered_trail = player_settings["player-trail-taper"]
-            if tapered_trail then
-                scale = scale - scale / max_scale / 10
+            local player_settings = storage.settings[player_index]
+            if player_settings["player-trail-taper"] then
+                scale = scale - scale / sprite_data.max_scale / 10
                 render_object.x_scale = scale
                 render_object.y_scale = scale
                 sprite_data.scale = scale
             end
-            if animated_trail and rainbow_trail then
+            if player_settings["player-trail-animate"] and player_settings["player-trail-type"] == "rainbow" then
+                local created_tick = player_settings["player-trail-sync"] and player_index or sprite_data.tick
+                local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, sprite_data.frequency, sprite_data.amplitude, sprite_data.center)
                 render_object.color = rainbow_color
             end
         end
@@ -307,26 +304,23 @@ end
 
 local function animate_existing_lights()
     local current_tick = game.tick
+    if not (current_tick % 3 == 0) then return end
     for id, light_data in pairs(storage.lights) do
         if light_data.tick_to_die <= current_tick + 1 then
             storage.lights[id] = nil
-        elseif (current_tick % 3 == 0) and light_data.light then
+        elseif light_data.light then
             local render_object = light_data.render_object
             local player_index = light_data.player_index
-            local player_settings = storage.settings[player_index]
-            local created_tick = player_settings["player-trail-sync"] and player_index or light_data.tick
-            local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, light_data.frequency, light_data.amplitude, light_data.center)
             local scale = light_data.scale
-            local max_scale = light_data.max_scale
-            local animated_trail = player_settings["player-trail-animate"]
-            local rainbow_trail = player_settings["player-trail-type"] == "rainbow"
-            local tapered_trail = player_settings["player-trail-taper"]
-            if tapered_trail then
-                scale = scale - scale / max_scale / 10
+            local player_settings = storage.settings[player_index]
+            if player_settings["player-trail-taper"] then
+                scale = scale - scale / light_data.max_scale / 10
                 render_object.scale = scale
                 light_data.scale = scale
             end
-            if animated_trail and rainbow_trail then
+            if player_settings["player-trail-animate"] and player_settings["player-trail-type"] == "rainbow" then
+                local created_tick = player_settings["player-trail-sync"] and player_index or light_data.tick
+                local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, light_data.frequency, light_data.amplitude, light_data.center)
                 render_object.color = rainbow_color
             end
         end
