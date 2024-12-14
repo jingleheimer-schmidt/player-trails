@@ -184,8 +184,8 @@ local function draw_new_trail_segment(player)
         initialize_settings(player.index)
     end
     if player.controller_type == defines.controllers.character then
-        global.last_render_positions = global.last_render_positions or {}
         local position = player.position
+        global.last_render_positions = global.last_render_positions or {}
         global.last_render_positions[player_index] = global.last_render_positions[player_index] or position
         local last_render_position = global.last_render_positions[player_index]
         if distance(last_render_position, position) > 0.33 then
