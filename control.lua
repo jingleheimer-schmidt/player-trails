@@ -194,10 +194,10 @@ local function draw_new_trail_segment(player)
             local draw_light = player_settings["player-trail-glow"]
             local event_tick = game.tick
             if draw_sprite or draw_light then
-                local length = tonumber(player_settings["player-trail-length"])
-                local scale = tonumber(player_settings["player-trail-scale"])
+                local length = tonumber(player_settings["player-trail-length"]) --[[@as integer]]
+                local scale = tonumber(player_settings["player-trail-scale"]) --[[@as integer]]
                 if draw_sprite then
-                    draw_sprite = rendering.draw_sprite {
+                    local render_object = rendering.draw_sprite {
                         sprite = "player-trail",
                         target = player.position,
                         surface = player.surface,
@@ -206,9 +206,11 @@ local function draw_new_trail_segment(player)
                         render_layer = "radius-visualization",
                         time_to_live = length,
                     }
+                    local render_object_id = render_object.id
                     global.sprites = global.sprites or {} ---@type table<integer, rainbow_data>
-                    global.sprites[draw_sprite] = {
-                        render_id = draw_sprite,
+                    global.sprites[render_object_id] = {
+                        render_id = render_object_id,
+                        render_object = render_object,
                         sprite = true,
                         light = false,
                         tick_to_die = event_tick + length,
@@ -224,10 +226,10 @@ local function draw_new_trail_segment(player)
                     if player_settings["player-trail-type"] == "rainbow" then
                         rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
                     end
-                    rendering.set_color(draw_sprite, rainbow_color)
+                    render_object.color = rainbow_color
                 end
                 if draw_light then
-                    draw_light = rendering.draw_light {
+                    local render_object = rendering.draw_light {
                         sprite = "player-trail",
                         target = player.position,
                         surface = player.surface,
@@ -236,9 +238,11 @@ local function draw_new_trail_segment(player)
                         render_layer = "light-effect",
                         time_to_live = length,
                     }
+                    local render_object_id = render_object.id
                     global.lights = global.lights or {} ---@type table<integer, rainbow_data>
-                    global.lights[draw_light] = {
-                        render_id = draw_light,
+                    global.lights[render_object_id] = {
+                        render_id = render_object_id,
+                        render_object = render_object,
                         sprite = false,
                         light = true,
                         tick_to_die = event_tick + length,
@@ -254,7 +258,7 @@ local function draw_new_trail_segment(player)
                     if player_settings["player-trail-type"] == "rainbow" then
                         rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
                     end
-                    rendering.set_color(draw_light, rainbow_color)
+                    render_object.color = rainbow_color
                 end
                 global.last_render_positions[player_index] = position
             end
@@ -264,6 +268,7 @@ end
 
 ---@class rainbow_data
 ---@field render_id uint
+---@field render_object LuaRenderObject
 ---@field sprite boolean
 ---@field light boolean
 ---@field tick_to_die uint
@@ -283,41 +288,40 @@ local function animate_existing_trail_segments()
     for _, id in pairs(render_ids) do
         local rainbow = global.sprites[id] or global.lights[id] or nil
         if rainbow then
+            local draw_sprite = rainbow.sprite
+            local draw_light = rainbow.light
             if rainbow.tick_to_die <= game_tick + 1 then
                 global.sprites[id] = nil
                 global.lights[id] = nil
-            elseif game_tick % 3 == 0 then
+            elseif (game_tick % 3 == 0) and (draw_light or draw_sprite) then
+                local render_object = rainbow.render_object
                 local player_index = rainbow.player_index
                 local player_settings = settings[rainbow.player_index]
-                local sprite = rainbow.sprite
-                local light = rainbow.light
-                local rainbow_color = make_optimized_rainbow(player_index, rainbow.tick, game_tick, rainbow.frequency,
-                    rainbow.amplitude, rainbow.center)
+                local rainbow_color = make_optimized_rainbow(player_index, rainbow.tick, game_tick, rainbow.frequency, rainbow.amplitude, rainbow.center)
                 local scale = rainbow.scale
                 local max_scale = rainbow.max_scale
                 local animated_trail = player_settings["player-trail-animate"]
                 local rainbow_trail = player_settings["player-trail-type"] == "rainbow"
                 local tapered_trail = player_settings["player-trail-taper"]
-                if sprite then
+                if draw_sprite then
                     if tapered_trail then
                         -- local scale = rendering.get_x_scale(sprite)
                         scale = scale - scale / max_scale / 10
-                        rendering.set_x_scale(id, scale)
-                        rendering.set_y_scale(id, scale)
+                        render_object.scale = scale
                         global.sprites[id].scale = scale
                     end
                     if animated_trail and rainbow_trail then
-                        rendering.set_color(id, rainbow_color)
+                        render_object.color = rainbow_color
                     end
-                elseif light then
+                elseif draw_light then
                     if tapered_trail then
                         -- local scale = rendering.get_scale(light)
                         scale = scale - scale / max_scale / 10
-                        rendering.set_scale(id, scale)
+                        render_object.scale = scale
                         global.lights[id].scale = scale
                     end
                     if animated_trail and rainbow_trail then
-                        rendering.set_color(id, rainbow_color)
+                        render_object.color = rainbow_color
                     end
                 end
             end
@@ -334,22 +338,28 @@ local function on_tick(event)
     animate_existing_trail_segments()
 end
 
-script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+---@param event EventData.on_runtime_mod_setting_changed
+local function on_runtime_mod_setting_changed(event)
     if event.setting:match("^player%-trail%-") then
         initialize_settings(event.player_index)
     end
-end)
+end
 
-script.on_configuration_changed(function(event)
-    for each, player in pairs(game.players) do
+---@param event ConfigurationChangedData
+local function on_configuration_changed(event)
+    for _, player in pairs(game.players) do
         initialize_settings(player.index)
     end
-end)
+end
 
-script.on_event(defines.events.on_player_joined_game, function(event)
+---@param event EventData.on_player_joined_game
+local function on_player_joined_game(event)
     initialize_settings(event.player_index)
-end)
+end
 
 -- script.on_event(defines.events.on_player_changed_position, player_changed_position)
 
 script.on_event(defines.events.on_tick, on_tick)
+script.on_configuration_changed(on_configuration_changed)
+script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
+script.on_event(defines.events.on_runtime_mod_setting_changed, on_runtime_mod_setting_changed)
