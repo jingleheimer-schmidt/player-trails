@@ -66,11 +66,9 @@ end
 
 ---@param index integer
 local function initialize_settings(index)
-    if not index then return end
-    if not storage.settings then
-        storage.settings = {}
-    end
     local player_settings = settings.get_player_settings(index)
+    if not player_settings then return end
+    storage.settings = {}
     storage.settings[index] = {}
     storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
     storage.settings[index]["player-trail-color"] = player_settings["player-trail-color"].value
@@ -82,12 +80,8 @@ local function initialize_settings(index)
     storage.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
     storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
     storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
-    if not storage.sprites then
-        storage.sprites = {}
-    end
-    if not storage.lights then
-        storage.lights = {}
-    end
+    storage.sprites = storage.sprites or {}
+    storage.lights = storage.lights or {}
 end
 
 -- ---called whenever a player changes position, draws a new sprite and light
