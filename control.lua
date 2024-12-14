@@ -67,26 +67,26 @@ end
 ---@param index integer
 local function initialize_settings(index)
     if not index then return end
-    if not global.settings then
-        global.settings = {}
+    if not storage.settings then
+        storage.settings = {}
     end
     local player_settings = settings.get_player_settings(index)
-    global.settings[index] = {}
-    global.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
-    global.settings[index]["player-trail-color"] = player_settings["player-trail-color"].value
-    global.settings[index]["player-trail-animate"] = player_settings["player-trail-animate"].value
-    global.settings[index]["player-trail-length"] = player_settings["player-trail-length"].value
-    global.settings[index]["player-trail-scale"] = player_settings["player-trail-scale"].value
-    global.settings[index]["player-trail-speed"] = player_settings["player-trail-speed"].value
-    global.settings[index]["player-trail-sync"] = player_settings["player-trail-sync"].value
-    global.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
-    global.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
-    global.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
-    if not global.sprites then
-        global.sprites = {}
+    storage.settings[index] = {}
+    storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
+    storage.settings[index]["player-trail-color"] = player_settings["player-trail-color"].value
+    storage.settings[index]["player-trail-animate"] = player_settings["player-trail-animate"].value
+    storage.settings[index]["player-trail-length"] = player_settings["player-trail-length"].value
+    storage.settings[index]["player-trail-scale"] = player_settings["player-trail-scale"].value
+    storage.settings[index]["player-trail-speed"] = player_settings["player-trail-speed"].value
+    storage.settings[index]["player-trail-sync"] = player_settings["player-trail-sync"].value
+    storage.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
+    storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
+    storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
+    if not storage.sprites then
+        storage.sprites = {}
     end
-    if not global.lights then
-        global.lights = {}
+    if not storage.lights then
+        storage.lights = {}
     end
 end
 
@@ -94,10 +94,10 @@ end
 -- ---@param event EventData.on_player_changed_position
 -- local function player_changed_position(event)
 --   local player_index = event.player_index
---   if not (global.settings and global.settings[player_index]) then
+--   if not (storage.settings and storage.settings[player_index]) then
 --     initialize_settings(player_index)
 --   end
---   local player_settings = global.settings[player_index]
+--   local player_settings = storage.settings[player_index]
 --   local sprite = player_settings["player-trail-color"]
 --   local light = player_settings["player-trail-glow"]
 --   local player = {}
@@ -122,8 +122,8 @@ end
 --       render_layer = "radius-visualization",
 --       time_to_live = length,
 --     }
---     if not global.sprites then
---       global.sprites = {}
+--     if not storage.sprites then
+--       storage.sprites = {}
 --     end
 --     local sprite_data = {
 --       sprite = sprite,
@@ -132,7 +132,7 @@ end
 --       tick = event_tick,
 --       player_index = player_index,
 --     }
---     global.sprites[sprite] = sprite_data
+--     storage.sprites[sprite] = sprite_data
 --     local rainbow_color = player.color
 --     if player_settings["player-trail-type"] == "rainbow" then
 --       rainbow_color = make_rainbow(sprite_data, event_tick, player_settings)
@@ -149,8 +149,8 @@ end
 --       render_layer = "light-effect",
 --       time_to_live = length,
 --     }
---     if not global.lights then
---       global.lights = {}
+--     if not storage.lights then
+--       storage.lights = {}
 --     end
 --     local light_data = {
 --       light = light,
@@ -159,7 +159,7 @@ end
 --       tick = event_tick,
 --       player_index = player_index,
 --     }
---     global.lights[light] = light_data
+--     storage.lights[light] = light_data
 --     local rainbow_color = player.color
 --     if player_settings["player-trail-type"] == "rainbow" then
 --       rainbow_color = make_rainbow(light_data, event_tick, player_settings)
@@ -180,16 +180,16 @@ end
 ---@param player LuaPlayer
 local function draw_new_trail_segment(player)
     local player_index = player.index
-    if not (global.settings and global.settings[player_index]) then
+    if not (storage.settings and storage.settings[player_index]) then
         initialize_settings(player.index)
     end
     if player.controller_type == defines.controllers.character then
         local position = player.position
-        global.last_render_positions = global.last_render_positions or {}
-        global.last_render_positions[player_index] = global.last_render_positions[player_index] or position
-        local last_render_position = global.last_render_positions[player_index]
+        storage.last_render_positions = storage.last_render_positions or {}
+        storage.last_render_positions[player_index] = storage.last_render_positions[player_index] or position
+        local last_render_position = storage.last_render_positions[player_index]
         if distance(last_render_position, position) > 0.33 then
-            local player_settings = global.settings[player_index]
+            local player_settings = storage.settings[player_index]
             local draw_sprite = player_settings["player-trail-color"]
             local draw_light = player_settings["player-trail-glow"]
             local event_tick = game.tick
@@ -207,8 +207,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    global.sprites = global.sprites or {} ---@type table<integer, rainbow_data>
-                    global.sprites[render_object_id] = {
+                    storage.sprites = storage.sprites or {} ---@type table<integer, rainbow_data>
+                    storage.sprites[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
                         sprite = true,
@@ -239,8 +239,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    global.lights = global.lights or {} ---@type table<integer, rainbow_data>
-                    global.lights[render_object_id] = {
+                    storage.lights = storage.lights or {} ---@type table<integer, rainbow_data>
+                    storage.lights[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
                         sprite = false,
@@ -260,7 +260,7 @@ local function draw_new_trail_segment(player)
                     end
                     render_object.color = rainbow_color
                 end
-                global.last_render_positions[player_index] = position
+                storage.last_render_positions[player_index] = position
             end
         end
     end
@@ -283,16 +283,16 @@ end
 local function animate_existing_trail_segments()
     local render_ids = rendering.get_all_ids("player-trails")
     if not render_ids then return end
-    local settings = global.settings
+    local settings = storage.settings
     local game_tick = game.tick
     for _, id in pairs(render_ids) do
-        local rainbow = global.sprites[id] or global.lights[id] or nil
+        local rainbow = storage.sprites[id] or storage.lights[id] or nil
         if rainbow then
             local draw_sprite = rainbow.sprite
             local draw_light = rainbow.light
             if rainbow.tick_to_die <= game_tick + 1 then
-                global.sprites[id] = nil
-                global.lights[id] = nil
+                storage.sprites[id] = nil
+                storage.lights[id] = nil
             elseif (game_tick % 3 == 0) and (draw_light or draw_sprite) then
                 local render_object = rainbow.render_object
                 local player_index = rainbow.player_index
@@ -308,7 +308,7 @@ local function animate_existing_trail_segments()
                         -- local scale = rendering.get_x_scale(sprite)
                         scale = scale - scale / max_scale / 10
                         render_object.scale = scale
-                        global.sprites[id].scale = scale
+                        storage.sprites[id].scale = scale
                     end
                     if animated_trail and rainbow_trail then
                         render_object.color = rainbow_color
@@ -318,7 +318,7 @@ local function animate_existing_trail_segments()
                         -- local scale = rendering.get_scale(light)
                         scale = scale - scale / max_scale / 10
                         render_object.scale = scale
-                        global.lights[id].scale = scale
+                        storage.lights[id].scale = scale
                     end
                     if animated_trail and rainbow_trail then
                         render_object.color = rainbow_color
