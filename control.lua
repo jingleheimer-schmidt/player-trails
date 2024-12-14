@@ -297,7 +297,8 @@ local function animate_existing_trail_segments()
                 local render_object = rainbow.render_object
                 local player_index = rainbow.player_index
                 local player_settings = settings[rainbow.player_index]
-                local rainbow_color = make_optimized_rainbow(player_index, rainbow.tick, game_tick, rainbow.frequency, rainbow.amplitude, rainbow.center)
+                local created_tick = player_settings["player-trail-sync"] == true and player_index or rainbow.tick
+                local rainbow_color = make_optimized_rainbow(player_index, created_tick, game_tick, rainbow.frequency, rainbow.amplitude, rainbow.center)
                 local scale = rainbow.scale
                 local max_scale = rainbow.max_scale
                 local animated_trail = player_settings["player-trail-animate"]
