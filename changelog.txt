@@ -2,6 +2,7 @@
 Version: 0.0.4
 Date: ????
   Changes:
+    - updated to support Factorio 2.0
     - added support for player trails in the main menu simulations
   Bugfixes:
     - fixed that the trail color syncronization mod setting was not working properly
