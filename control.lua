@@ -327,14 +327,57 @@ local function animate_existing_lights()
     end
 end
 
+---@param trail_data rainbow_data
+---@param current_tick uint
+local function animate_existing_trail(trail_data, current_tick)
+    local render_object = trail_data.render_object
+    local player_index = trail_data.player_index
+    local player_settings = storage.settings[player_index]
+    if player_settings["player-trail-taper"] then
+        local scale = trail_data.scale
+        scale = scale - scale / trail_data.max_scale / 10
+        if trail_data.sprite then
+            render_object.x_scale = scale
+            render_object.y_scale = scale
+        else
+            render_object.scale = scale
+        end
+        trail_data.scale = scale
+    end
+    if player_settings["player-trail-animate"] and player_settings["player-trail-type"] == "rainbow" then
+        local created_tick = player_settings["player-trail-sync"] and player_index or trail_data.tick
+        local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, trail_data.frequency, trail_data.amplitude, trail_data.center)
+        render_object.color = rainbow_color
+    end
+end
+
+local function animate_existing_trails()
+    local current_tick = game.tick
+    if not (current_tick % 3 == 0) then return end
+    local next_tick = current_tick + 1
+    for id, trail_data in pairs(storage.lights) do
+        if trail_data.tick_to_die <= next_tick then
+            storage.lights[id] = nil
+        else
+            animate_existing_trail(trail_data, current_tick)
+        end
+    end
+    for id, trail_data in pairs(storage.sprites) do
+        if trail_data.tick_to_die <= next_tick then
+            storage.sprites[id] = nil
+        else
+            animate_existing_trail(trail_data, current_tick)
+        end
+    end
+end
+
 ---runs every tick to update the rainbow color animation and taper
 ---@param event EventData.on_tick
 local function on_tick(event)
     for _, player in pairs(game.connected_players) do
         draw_new_trail_segment(player)
     end
-    animate_existing_sprites()
-    animate_existing_lights()
+    animate_existing_trails()
     if game.simulation then
     end
 end
