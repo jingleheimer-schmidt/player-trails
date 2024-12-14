@@ -226,18 +226,18 @@ local function animate_existing_trails()
     local current_tick = game.tick
     if not (current_tick % 3 == 0) then return end
     local next_tick = current_tick + 1
-    for id, trail_data in pairs(storage.lights) do
-        if trail_data.tick_to_die <= next_tick then
-            storage.lights[id] = nil
-        else
-            animate_existing_trail(trail_data, current_tick)
+    local render_groups = { storage.sprites, storage.lights }
+    for _, render_group in pairs(render_groups) do
+        local ids_to_remove = {}
+        for id, trail_data in pairs(render_group) do
+            if trail_data.tick_to_die <= next_tick then
+                ids_to_remove[#ids_to_remove + 1] = id
+            else
+                animate_existing_trail(trail_data, current_tick)
+            end
         end
-    end
-    for id, trail_data in pairs(storage.sprites) do
-        if trail_data.tick_to_die <= next_tick then
-            storage.sprites[id] = nil
-        else
-            animate_existing_trail(trail_data, current_tick)
+        for _, id in pairs(ids_to_remove) do
+            render_group[id] = nil
         end
     end
 end
