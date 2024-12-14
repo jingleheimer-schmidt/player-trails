@@ -277,15 +277,16 @@ end
 ---@field center number
 
 local function animate_existing_sprites()
+    local current_tick = game.tick
     for id, sprite_data in pairs(storage.sprites) do
-        if sprite_data.tick_to_die <= game.tick + 1 then
+        if sprite_data.tick_to_die <= current_tick + 1 then
             storage.sprites[id] = nil
-        elseif (game.tick % 3 == 0) and sprite_data.sprite then
+        elseif (current_tick % 3 == 0) and sprite_data.sprite then
             local render_object = sprite_data.render_object
             local player_index = sprite_data.player_index
             local player_settings = storage.settings[player_index]
-            local created_tick = player_settings["player-trail-sync"] == true and player_index or sprite_data.tick
-            local rainbow_color = make_optimized_rainbow(player_index, created_tick, game.tick, sprite_data.frequency, sprite_data.amplitude, sprite_data.center)
+            local created_tick = player_settings["player-trail-sync"] and player_index or sprite_data.tick
+            local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, sprite_data.frequency, sprite_data.amplitude, sprite_data.center)
             local scale = sprite_data.scale
             local max_scale = sprite_data.max_scale
             local animated_trail = player_settings["player-trail-animate"]
@@ -295,7 +296,7 @@ local function animate_existing_sprites()
                 scale = scale - scale / max_scale / 10
                 render_object.x_scale = scale
                 render_object.y_scale = scale
-                storage.sprites[id].scale = scale
+                sprite_data.scale = scale
             end
             if animated_trail and rainbow_trail then
                 render_object.color = rainbow_color
@@ -305,15 +306,16 @@ local function animate_existing_sprites()
 end
 
 local function animate_existing_lights()
+    local current_tick = game.tick
     for id, light_data in pairs(storage.lights) do
-        if light_data.tick_to_die <= game.tick + 1 then
+        if light_data.tick_to_die <= current_tick + 1 then
             storage.lights[id] = nil
-        elseif (game.tick % 3 == 0) and light_data.light then
+        elseif (current_tick % 3 == 0) and light_data.light then
             local render_object = light_data.render_object
             local player_index = light_data.player_index
             local player_settings = storage.settings[player_index]
-            local created_tick = player_settings["player-trail-sync"] == true and player_index or light_data.tick
-            local rainbow_color = make_optimized_rainbow(player_index, created_tick, game.tick, light_data.frequency, light_data.amplitude, light_data.center)
+            local created_tick = player_settings["player-trail-sync"] and player_index or light_data.tick
+            local rainbow_color = make_optimized_rainbow(player_index, created_tick, current_tick, light_data.frequency, light_data.amplitude, light_data.center)
             local scale = light_data.scale
             local max_scale = light_data.max_scale
             local animated_trail = player_settings["player-trail-animate"]
@@ -322,7 +324,7 @@ local function animate_existing_lights()
             if tapered_trail then
                 scale = scale - scale / max_scale / 10
                 render_object.scale = scale
-                storage.lights[id].scale = scale
+                light_data.scale = scale
             end
             if animated_trail and rainbow_trail then
                 render_object.color = rainbow_color
