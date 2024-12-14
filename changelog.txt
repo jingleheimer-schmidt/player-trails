@@ -2,6 +2,7 @@
 Version: 0.0.4
 Date: ????
   Changes:
+    - added support for player trails in the main menu simulations
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.3
 Date: 05JAN2024
