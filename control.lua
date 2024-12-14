@@ -183,7 +183,7 @@ local function draw_new_trail_segment(player)
     if not (storage.settings and storage.settings[player_index]) then
         initialize_settings(player.index)
     end
-    if player.controller_type == defines.controllers.character then
+    if (player.controller_type == defines.controllers.character) or game.simulation then
         local position = player.position
         storage.last_render_positions = storage.last_render_positions or {}
         storage.last_render_positions[player_index] = storage.last_render_positions[player_index] or position
@@ -207,7 +207,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    storage.sprites = storage.sprites or {} ---@type table<integer, rainbow_data>
+                    --[[@type table<integer, rainbow_data>]]
+                    storage.sprites = storage.sprites or {}
                     storage.sprites[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
@@ -239,7 +240,8 @@ local function draw_new_trail_segment(player)
                         time_to_live = length,
                     }
                     local render_object_id = render_object.id
-                    storage.lights = storage.lights or {} ---@type table<integer, rainbow_data>
+                    --[[@type table<integer, rainbow_data>]]
+                    storage.lights = storage.lights or {}
                     storage.lights[render_object_id] = {
                         render_id = render_object_id,
                         render_object = render_object,
@@ -281,11 +283,12 @@ end
 ---@field center number
 
 local function animate_existing_trail_segments()
-    local render_ids = rendering.get_all_ids("player-trails")
-    if not render_ids then return end
+    local render_objects = rendering.get_all_objects("player-trails")
+    if not render_objects then return end
     local settings = storage.settings
     local game_tick = game.tick
-    for _, id in pairs(render_ids) do
+    for _, object in pairs(render_objects) do
+        local id = object.id
         local rainbow = storage.sprites[id] or storage.lights[id] or nil
         if rainbow then
             local draw_sprite = rainbow.sprite
@@ -306,9 +309,9 @@ local function animate_existing_trail_segments()
                 local tapered_trail = player_settings["player-trail-taper"]
                 if draw_sprite then
                     if tapered_trail then
-                        -- local scale = rendering.get_x_scale(sprite)
                         scale = scale - scale / max_scale / 10
-                        render_object.scale = scale
+                        render_object.x_scale = scale
+                        render_object.y_scale = scale
                         storage.sprites[id].scale = scale
                     end
                     if animated_trail and rainbow_trail then
@@ -316,7 +319,6 @@ local function animate_existing_trail_segments()
                     end
                 elseif draw_light then
                     if tapered_trail then
-                        -- local scale = rendering.get_scale(light)
                         scale = scale - scale / max_scale / 10
                         render_object.scale = scale
                         storage.lights[id].scale = scale
@@ -337,6 +339,8 @@ local function on_tick(event)
         draw_new_trail_segment(player)
     end
     animate_existing_trail_segments()
+    if game.simulation then
+    end
 end
 
 ---@param event EventData.on_runtime_mod_setting_changed
