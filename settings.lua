@@ -59,8 +59,8 @@ local scale = {
     }
 }
 
-local lenght = {
 ---@type data.ModStringSettingPrototype
+local length = {
     type = "string-setting",
     name = "player-trail-length",
     setting_type = "runtime-per-user",
@@ -185,7 +185,7 @@ data:extend({
     animate,
     taper,
     scale,
-    lenght,
+    length,
     color_type,
     theme,
     speed,
