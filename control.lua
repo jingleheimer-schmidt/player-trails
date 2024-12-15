@@ -457,7 +457,7 @@ local function draw_new_trail_segment(player)
     local position = player.position
     storage.last_render_positions = storage.last_render_positions or {}
     local last_position = storage.last_render_positions[player_index] or position
-    if distance(last_position, position) <= 0.33 then
+    if distance(last_position, position) <= 0.29 then
         return
     end
     storage.last_render_positions[player_index] = position
