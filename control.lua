@@ -43,31 +43,12 @@ local function make_optimized_rainbow(player_index, created_tick, game_tick, fre
     }
 end
 
---- make a rainbow color
----@param player_index uint
----@param created_tick uint
----@param game_tick uint
----@param player_settings table
----@return Color
-local function make_rainbow(player_index, created_tick, game_tick, player_settings)
-    -- local player_index = rainbow.player_index
-    -- local created_tick = rainbow.tick
-    -- local player_settings = settings[index]
-    local frequency = speeds[player_settings["player-trail-speed"]]
-    if player_settings["player-trail-sync"] == true then
-        created_tick = player_index
-    end
-    -- local modifier = (game_tick)+(player_index*created_tick)
-    local palette_key = player_settings["player-trail-palette"]
-    local amplitude = palette[palette_key].amplitude
-    local center = palette[palette_key].center
-    return make_optimized_rainbow(player_index, created_tick, game_tick, frequency, amplitude, center)
-end
-
 ---@param index integer
 local function initialize_settings(index)
     local player_settings = settings.get_player_settings(index)
     if not player_settings then return end
+    --[[@type table<integer, trail_segment_data>]]
+    storage.trail_data = storage.trail_data or {}
     --[[@type table<integer, table<string, boolean|string|number|Color>>]]
     storage.settings = {}
     storage.settings[index] = {}
@@ -81,8 +62,6 @@ local function initialize_settings(index)
     storage.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
     storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
     storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
-    --[[@type table<integer, trail_segment_data>]]
-    storage.trail_data = storage.trail_data or {}
 end
 
 ---@param pos1 MapPosition
@@ -113,6 +92,9 @@ local function draw_new_trail_segment(player)
             if draw_sprite or draw_light then
                 local length = tonumber(player_settings["player-trail-length"]) --[[@as integer]]
                 local scale = tonumber(player_settings["player-trail-scale"]) --[[@as integer]]
+                local frequency = speeds[player_settings["player-trail-speed"]] --[[@as number]]
+                local amplitude = palette[player_settings["player-trail-palette"]].amplitude --[[@as number]]
+                local center = palette[player_settings["player-trail-palette"]].center --[[@as number]]
                 if draw_sprite then
                     local render_object = rendering.draw_sprite {
                         sprite = "player-trail",
@@ -135,13 +117,14 @@ local function draw_new_trail_segment(player)
                         max_scale = scale,
                         tick = event_tick,
                         player_index = player_index,
-                        frequency = speeds[player_settings["player-trail-speed"]],
-                        amplitude = palette[player_settings["player-trail-palette"]].amplitude,
-                        center = palette[player_settings["player-trail-palette"]].center,
+                        frequency = frequency,
+                        amplitude = amplitude,
+                        center = center,
                     }
                     local rainbow_color = player.color
                     if player_settings["player-trail-type"] == "rainbow" then
-                        rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
+                        local created_tick = player_settings["player-trail-sync"] and player_index or event_tick
+                        rainbow_color = make_optimized_rainbow(player_index, created_tick, event_tick, frequency, amplitude, center)
                     end
                     render_object.color = rainbow_color
                 end
@@ -167,13 +150,14 @@ local function draw_new_trail_segment(player)
                         max_scale = scale,
                         tick = event_tick,
                         player_index = player_index,
-                        frequency = speeds[player_settings["player-trail-speed"]],
-                        amplitude = palette[player_settings["player-trail-palette"]].amplitude,
-                        center = palette[player_settings["player-trail-palette"]].center,
+                        frequency = frequency,
+                        amplitude = amplitude,
+                        center = center,
                     }
                     local rainbow_color = player.color
                     if player_settings["player-trail-type"] == "rainbow" then
-                        rainbow_color = make_rainbow(player_index, event_tick, event_tick, player_settings)
+                        local created_tick = player_settings["player-trail-sync"] and player_index or event_tick
+                        rainbow_color = make_optimized_rainbow(player_index, created_tick, event_tick, frequency, amplitude, center)
                     end
                     render_object.color = rainbow_color
                 end
