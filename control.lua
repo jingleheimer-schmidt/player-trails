@@ -559,7 +559,6 @@ local function get_player_entity(player)
     end
 end
 
----runs every tick to update the rainbow color animation and taper
 ---@param event EventData.on_tick
 local function on_tick(event)
     for _, player in pairs(game.connected_players) do
@@ -570,39 +569,26 @@ local function on_tick(event)
     end
     animate_existing_trails()
     if game.simulation then
-        if (not (storage.characters and next(storage.characters))) or (game.tick % 30 == 0) then
-            --[[@type table<{player:LuaPlayer, character:LuaEntity}>>]]
+        if not storage.characters or ((game.tick % 30 == 0) and not next(storage.characters)) then
             storage.characters = {}
             for _, surface in pairs(game.surfaces) do
                 for _, character in pairs(surface.find_entities_filtered { type = "character" }) do
                     if character and character.valid then
-                        local player = character.player or character.associated_player or character.last_user or game.get_player(1) --[[@as LuaPlayer]]
+                        local player = character.player or character.associated_player or character.last_user or game.get_player(1)
                         if player and player.valid then
-                            storage.characters[character.unit_number] = {
-                                player = player,
-                                character = character
-                            }
+                            storage.characters[character.unit_number] = { player = player, character = character }
                         end
                     end
                 end
             end
-            if not next(storage.characters) then
-                game.speed = 10
-            else
-                game.speed = 1
-            end
         end
-        for _, character_data in pairs(storage.characters) do
+        for id, character_data in pairs(storage.characters) do
             local player = character_data.player
             local character = character_data.character
             if player and player.valid and character and character.valid then
                 draw_new_trail_segment(player, character)
-            end
-        end
-        for _, player in pairs(game.players) do
-            local character = get_player_entity(player)
-            if player and player.valid and character and character.valid then
-                draw_new_trail_segment(player, character)
+            else
+                storage.characters[id] = nil
             end
         end
     end
