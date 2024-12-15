@@ -396,6 +396,7 @@ end
 local function create_trail_render_object(draw_type, player, position, length, scale, event_tick, player_index, frequency, theme_name, color)
     local is_sprite = draw_type == "sprite"
     local is_light = draw_type == "light"
+    scale = is_light and scale * 1.5 or scale
     local params = {
         sprite = "player-trail",
         target = position,
@@ -407,7 +408,7 @@ local function create_trail_render_object(draw_type, player, position, length, s
         params.y_scale = scale
         params.render_layer = "radius-visualization"
     elseif is_light then
-        params.intensity = 0.05
+        params.intensity = 0.2 / scale
         params.scale = scale
         params.render_layer = "light-effect"
     end
