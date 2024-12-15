@@ -1,4 +1,5 @@
 
+---@type data.ModBoolSettingPrototype
 local sprite = {
     type = "bool-setting",
     name = "player-trail-color",
@@ -9,6 +10,7 @@ local sprite = {
     forced_value = true
 }
 
+---@type data.ModBoolSettingPrototype
 local light = {
     type = "bool-setting",
     name = "player-trail-glow",
@@ -19,6 +21,7 @@ local light = {
     forced_value = true
 }
 
+---@type data.ModBoolSettingPrototype
 local animate = {
     type = "bool-setting",
     name = "player-trail-animate",
@@ -27,6 +30,7 @@ local animate = {
     default_value = true
 }
 
+---@type data.ModBoolSettingPrototype
 local taper = {
     type = "bool-setting",
     name = "player-trail-taper",
@@ -35,6 +39,7 @@ local taper = {
     default_value = true
 }
 
+---@type data.ModStringSettingPrototype
 local scale = {
     type = "string-setting",
     name = "player-trail-scale",
@@ -55,6 +60,7 @@ local scale = {
 }
 
 local lenght = {
+---@type data.ModStringSettingPrototype
     type = "string-setting",
     name = "player-trail-length",
     setting_type = "runtime-per-user",
@@ -73,6 +79,7 @@ local lenght = {
     }
 }
 
+---@type data.ModStringSettingPrototype
 local color_type = {
     type = "string-setting",
     name = "player-trail-type",
@@ -85,6 +92,7 @@ local color_type = {
     }
 }
 
+---@type data.ModStringSettingPrototype
 local theme = {
     type = "string-setting",
     name = "player-trail-theme",
@@ -146,6 +154,7 @@ local theme = {
     }
 }
 
+---@type data.ModStringSettingPrototype
 local speed = {
     type = "string-setting",
     name = "player-trail-speed",
@@ -161,6 +170,7 @@ local speed = {
     }
 }
 
+---@type data.ModBoolSettingPrototype
 local enabled = {
     type = "bool-setting",
     name = "player-trail-enabled",
