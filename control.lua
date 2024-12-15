@@ -312,9 +312,9 @@ local function get_rainbow_color(tick, player_index, frequency, theme_name)
         local amplitude = continuous_theme.amplitude
         local center = continuous_theme.center
         return {
-            r = sin(modifier + pi_0) * amplitude + center,
+            r = sin(modifier + pi_4) * amplitude + center,
             g = sin(modifier + pi_2) * amplitude + center,
-            b = sin(modifier + pi_4) * amplitude + center,
+            b = sin(modifier + pi_0) * amplitude + center,
             a = 255,
         }
     elseif stepwise_theme then
