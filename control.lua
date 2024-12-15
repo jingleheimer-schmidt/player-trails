@@ -449,7 +449,8 @@ end
 
 --- Draw a new sprite and/or light trail segment if the player moved enough.
 ---@param player LuaPlayer
-local function draw_new_trail_segment(player)
+---@param character LuaEntity
+local function draw_new_trail_segment(player, character)
     local player_index = player.index
     if not (storage.settings and storage.settings[player_index]) then
         initialize_settings(player_index)
@@ -461,13 +462,15 @@ local function draw_new_trail_segment(player)
     if not player_settings["player-trail-enabled"] then
         return
     end
-    local position = player.position
+    local position = character.position
+    local character_index = character.unit_number --[[@as integer]]
     storage.last_render_positions = storage.last_render_positions or {}
-    local last_position = storage.last_render_positions[player_index] or position
+    storage.last_render_positions[character_index] = storage.last_render_positions[character_index] or position
+    local last_position = storage.last_render_positions[character_index]
     if distance(last_position, position) <= 0.29 then
         return
     end
-    storage.last_render_positions[player_index] = position
+    storage.last_render_positions[character_index] = position
     local draw_sprite = player_settings["player-trail-color"]
     local draw_light = player_settings["player-trail-glow"]
     if not (draw_sprite or draw_light) then
@@ -539,14 +542,59 @@ local function animate_existing_trails()
     end
 end
 
----runs every tick to update the rainbow color animation and taper
+---@param player LuaPlayer
+---@return LuaEntity?
+local function get_player_entity(player)
+    if player.controller_type == defines.controllers.character then
+        return player.character
+    elseif player.controller_type == defines.controllers.cutscene then
+        return player.cutscene_character
+    elseif player.vehicle then
+        return player.vehicle
+    else
+        local characters = player.get_associated_characters()
+        if characters and #characters > 0 then
+            return characters[1]
+        end
+    end
+end
+
+local function update_simulation_trails()
+    if not storage.characters or ((game.tick % 30 == 0) and not next(storage.characters)) then
+        storage.characters = {}
+        for _, surface in pairs(game.surfaces) do
+            for _, character in pairs(surface.find_entities_filtered { type = "character" }) do
+                if character and character.valid then
+                    local player = character.player or character.associated_player or character.last_user or game.get_player(1)
+                    if player and player.valid then
+                        storage.characters[character.unit_number] = { player = player, character = character }
+                    end
+                end
+            end
+        end
+    end
+    for id, character_data in pairs(storage.characters) do
+        local player = character_data.player
+        local character = character_data.character
+        if player and player.valid and character and character.valid then
+            draw_new_trail_segment(player, character)
+        else
+            storage.characters[id] = nil
+        end
+    end
+end
+
 ---@param event EventData.on_tick
 local function on_tick(event)
     for _, player in pairs(game.connected_players) do
-        draw_new_trail_segment(player)
+        local character = get_player_entity(player)
+        if character and character.valid then
+            draw_new_trail_segment(player, character)
+        end
     end
     animate_existing_trails()
     if game.simulation then
+        update_simulation_trails()
     end
 end
 
