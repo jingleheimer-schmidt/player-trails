@@ -72,98 +72,107 @@ local function distance(pos1, pos2)
     return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
 end
 
---- draw a new sprite and light
+---@param draw_type "sprite"|"light"
+---@param player LuaPlayer
+---@param position MapPosition
+---@param length number
+---@param scale number
+---@param event_tick uint
+---@param player_index uint
+---@param frequency number
+---@param amplitude number
+---@param center number
+---@param color Color
+local function create_trail_render_object(draw_type, player, position, length, scale, event_tick, player_index, frequency, amplitude, center, color)
+    local is_sprite = draw_type == "sprite"
+    local is_light = draw_type == "light"
+    local params = {
+        sprite = "player-trail",
+        target = position,
+        surface = player.surface,
+        time_to_live = length
+    }
+    if is_sprite then
+        params.x_scale = scale
+        params.y_scale = scale
+        params.render_layer = "radius-visualization"
+    elseif is_light then
+        params.intensity = 0.1
+        params.scale = scale
+        params.render_layer = "light-effect"
+    end
+    local render_object = is_sprite and rendering.draw_sprite(params) or rendering.draw_light(params)
+    storage.trail_data = storage.trail_data or {}
+    storage.trail_data[render_object.id] = {
+        render_id = render_object.id,
+        render_object = render_object,
+        sprite = is_sprite,
+        light = is_light,
+        tick_to_die = event_tick + length,
+        scale = scale,
+        max_scale = scale,
+        tick = event_tick,
+        player_index = player_index,
+        frequency = frequency,
+        amplitude = amplitude,
+        center = center,
+    }
+    render_object.color = color
+end
+
+---@param player LuaPlayer
+---@param player_settings table
+---@param event_tick uint
+---@param frequency number
+---@param amplitude number
+---@param center number
+---@return Color
+local function get_trail_color(player, player_settings, event_tick, frequency, amplitude, center)
+    local rainbow_color = player.color
+    if player_settings["player-trail-type"] == "rainbow" then
+        local created_tick = player_settings["player-trail-sync"] and player.index or event_tick
+        rainbow_color = make_optimized_rainbow(player.index, created_tick, event_tick, frequency, amplitude, center)
+    end
+    return rainbow_color
+end
+
+--- Draw a new sprite and/or light trail segment if the player moved enough.
 ---@param player LuaPlayer
 local function draw_new_trail_segment(player)
     local player_index = player.index
     if not (storage.settings and storage.settings[player_index]) then
-        initialize_settings(player.index)
+        initialize_settings(player_index)
     end
-    if (player.controller_type == defines.controllers.character) or game.simulation then
-        local position = player.position
-        storage.last_render_positions = storage.last_render_positions or {}
-        storage.last_render_positions[player_index] = storage.last_render_positions[player_index] or position
-        local last_render_position = storage.last_render_positions[player_index]
-        if distance(last_render_position, position) > 0.33 then
-            local player_settings = storage.settings[player_index]
-            local draw_sprite = player_settings["player-trail-color"]
-            local draw_light = player_settings["player-trail-glow"]
-            local event_tick = game.tick
-            if draw_sprite or draw_light then
-                local length = tonumber(player_settings["player-trail-length"]) --[[@as integer]]
-                local scale = tonumber(player_settings["player-trail-scale"]) --[[@as integer]]
-                local frequency = speeds[player_settings["player-trail-speed"]] --[[@as number]]
-                local amplitude = palette[player_settings["player-trail-palette"]].amplitude --[[@as number]]
-                local center = palette[player_settings["player-trail-palette"]].center --[[@as number]]
-                if draw_sprite then
-                    local render_object = rendering.draw_sprite {
-                        sprite = "player-trail",
-                        target = player.position,
-                        surface = player.surface,
-                        x_scale = scale,
-                        y_scale = scale,
-                        render_layer = "radius-visualization",
-                        time_to_live = length,
-                    }
-                    local render_object_id = render_object.id
-                    storage.trail_data = storage.trail_data or {}
-                    storage.trail_data[render_object_id] = {
-                        render_id = render_object_id,
-                        render_object = render_object,
-                        sprite = true,
-                        light = false,
-                        tick_to_die = event_tick + length,
-                        scale = scale,
-                        max_scale = scale,
-                        tick = event_tick,
-                        player_index = player_index,
-                        frequency = frequency,
-                        amplitude = amplitude,
-                        center = center,
-                    }
-                    local rainbow_color = player.color
-                    if player_settings["player-trail-type"] == "rainbow" then
-                        local created_tick = player_settings["player-trail-sync"] and player_index or event_tick
-                        rainbow_color = make_optimized_rainbow(player_index, created_tick, event_tick, frequency, amplitude, center)
-                    end
-                    render_object.color = rainbow_color
-                end
-                if draw_light then
-                    local render_object = rendering.draw_light {
-                        sprite = "player-trail",
-                        target = player.position,
-                        surface = player.surface,
-                        intensity = .1,
-                        scale = scale,
-                        render_layer = "light-effect",
-                        time_to_live = length,
-                    }
-                    local render_object_id = render_object.id
-                    storage.trail_data = storage.trail_data or {}
-                    storage.trail_data[render_object_id] = {
-                        render_id = render_object_id,
-                        render_object = render_object,
-                        sprite = false,
-                        light = true,
-                        tick_to_die = event_tick + length,
-                        scale = scale,
-                        max_scale = scale,
-                        tick = event_tick,
-                        player_index = player_index,
-                        frequency = frequency,
-                        amplitude = amplitude,
-                        center = center,
-                    }
-                    local rainbow_color = player.color
-                    if player_settings["player-trail-type"] == "rainbow" then
-                        local created_tick = player_settings["player-trail-sync"] and player_index or event_tick
-                        rainbow_color = make_optimized_rainbow(player_index, created_tick, event_tick, frequency, amplitude, center)
-                    end
-                    render_object.color = rainbow_color
-                end
-                storage.last_render_positions[player_index] = position
-            end
-        end
+    if player.controller_type ~= defines.controllers.character and not game.simulation then
+        return
+    end
+    local position = player.position
+    storage.last_render_positions = storage.last_render_positions or {}
+    local last_position = storage.last_render_positions[player_index] or position
+    if distance(last_position, position) <= 0.33 then
+        return
+    end
+    storage.last_render_positions[player_index] = position
+    local player_settings = storage.settings[player_index]
+    local draw_sprite = player_settings["player-trail-color"]
+    local draw_light = player_settings["player-trail-glow"]
+    if not (draw_sprite or draw_light) then
+        return
+    end
+    local event_tick = game.tick
+    local length = tonumber(player_settings["player-trail-length"]) --[[@as integer]]
+    local scale = tonumber(player_settings["player-trail-scale"]) --[[@as integer]]
+    local frequency = speeds[player_settings["player-trail-speed"]] --[[@as number]]
+    local palette_data = palette[player_settings["player-trail-palette"]] --[[@as {amplitude:number, center:number}]]
+    local amplitude, center = palette_data.amplitude, palette_data.center
+
+    -- Determine the color (rainbow or static) once, reuse for both sprite and light
+    local trail_color = get_trail_color(player, player_settings, event_tick, frequency, amplitude, center)
+    if draw_sprite then
+        create_trail_render_object("sprite", player, position, length, scale, event_tick, player_index, frequency, amplitude, center, trail_color)
+    end
+    if draw_light then
+        create_trail_render_object("light", player, position, length, scale, event_tick, player_index, frequency, amplitude, center, trail_color)
     end
 end
 
