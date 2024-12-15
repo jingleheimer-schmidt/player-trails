@@ -364,6 +364,7 @@ local function initialize_settings(index)
     --[[@type table<integer, table<string, boolean|string|number|Color>>]]
     storage.settings = {}
     storage.settings[index] = {}
+    storage.settings[index]["player-trail-enabled"] = player_settings["player-trail-enabled"].value
     storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
     storage.settings[index]["player-trail-color"] = player_settings["player-trail-color"].value
     storage.settings[index]["player-trail-animate"] = player_settings["player-trail-animate"].value
@@ -456,6 +457,10 @@ local function draw_new_trail_segment(player)
     if player.controller_type ~= defines.controllers.character and not game.simulation then
         return
     end
+    local player_settings = storage.settings[player_index]
+    if not player_settings["player-trail-enabled"] then
+        return
+    end
     local position = player.position
     storage.last_render_positions = storage.last_render_positions or {}
     local last_position = storage.last_render_positions[player_index] or position
@@ -463,7 +468,6 @@ local function draw_new_trail_segment(player)
         return
     end
     storage.last_render_positions[player_index] = position
-    local player_settings = storage.settings[player_index]
     local draw_sprite = player_settings["player-trail-color"]
     local draw_light = player_settings["player-trail-glow"]
     if not (draw_sprite or draw_light) then

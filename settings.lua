@@ -4,7 +4,9 @@ local sprite = {
     name = "player-trail-color",
     setting_type = "runtime-per-user",
     order = "a",
-    default_value = true
+    default_value = true,
+    hidden = true,
+    forced_value = true
 }
 
 local light = {
@@ -12,7 +14,9 @@ local light = {
     name = "player-trail-glow",
     setting_type = "runtime-per-user",
     order = "b",
-    default_value = true
+    default_value = true,
+    hidden = true,
+    forced_value = true
 }
 
 local animate = {
@@ -157,6 +161,14 @@ local speed = {
     }
 }
 
+local enabled = {
+    type = "bool-setting",
+    name = "player-trail-enabled",
+    setting_type = "runtime-per-user",
+    order = "a",
+    default_value = true
+}
+
 data:extend({
     sprite,
     light,
@@ -167,4 +179,5 @@ data:extend({
     color_type,
     theme,
     speed,
+    enabled
 })
