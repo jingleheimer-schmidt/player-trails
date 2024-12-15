@@ -299,13 +299,13 @@ local pi_0 = 0 * math.pi / 3
 local pi_2 = 2 * math.pi / 3
 local pi_4 = 4 * math.pi / 3
 
----@param tick integer
+---@param game_tick integer
 ---@param frequency number
 ---@param theme_name string
 ---@param player_index uint
 ---@return Color
-local function get_rainbow_color(tick, player_index, frequency, theme_name)
-    local modifier = (player_index * 10 + tick) * frequency
+local function get_rainbow_color(game_tick, created_tick, player_index, frequency, theme_name)
+    local modifier = frequency * (game_tick + (player_index * created_tick))
     local continuous_theme = continuous_themes[theme_name]
     local stepwise_theme = stepwise_themes[theme_name]
     if continuous_theme then
@@ -433,13 +433,14 @@ end
 ---@param player LuaPlayer
 ---@param player_settings table
 ---@param event_tick uint
+---@param created_tick uint
 ---@param frequency number
 ---@param theme_name string
 ---@return Color
-local function get_trail_color(player, player_settings, event_tick, frequency, theme_name)
+local function get_trail_color(player, player_settings, event_tick, created_tick, frequency, theme_name)
     local rainbow_color = player.color
     if player_settings["player-trail-type"] == "rainbow" then
-        rainbow_color = get_rainbow_color(event_tick, player.index, frequency, theme_name)
+        rainbow_color = get_rainbow_color(event_tick, created_tick, player.index, frequency, theme_name)
     end
     return rainbow_color
 end
@@ -475,7 +476,7 @@ local function draw_new_trail_segment(player)
     local theme_name = player_settings["player-trail-theme"] --[[@as string]]
 
     -- Determine the color (rainbow or static) once, reuse for both sprite and light
-    local trail_color = get_trail_color(player, player_settings, event_tick, frequency, theme_name)
+    local trail_color = get_trail_color(player, player_settings, event_tick, event_tick, frequency, theme_name)
     if draw_sprite then
         create_trail_render_object("sprite", player, position, length, scale, event_tick, player_index, frequency, theme_name, trail_color)
     end
@@ -515,7 +516,7 @@ local function animate_existing_trail(trail_data, current_tick)
         trail_data.scale = scale
     end
     if player_settings["player-trail-animate"] and (player_settings["player-trail-type"] == "rainbow") then
-        local rainbow_color = get_rainbow_color(trail_data.tick, player_index, trail_data.frequency, trail_data.theme_name)
+        local rainbow_color = get_rainbow_color(current_tick, trail_data.tick, player_index, trail_data.frequency, trail_data.theme_name)
         render_object.color = rainbow_color
     end
 end
