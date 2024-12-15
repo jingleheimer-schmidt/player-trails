@@ -1,4 +1,21 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.0.4
+Date: 14DEC2024
+  Changes:
+    - updated to support Factorio 2.0
+    - added pride flag and country flag animated color themes
+    - added support for player trails in the main menu simulations
+    - reduced transparency of trail component graphic
+    - made "color" and "glow" mod settings hidden
+    - removed color-sync mod setting
+    - added "enabled" mod setting
+    - reversed the color order for the rainbow color themes
+    - glow intensity is more consistent across all trail sizes
+    - changed generation distance threshold from .33 to .29 to reduce flickering at default walking speed and while hovering in a mech suit
+    - refactored code to improve performance
+  Locale:
+    - clarified locale strings
+---------------------------------------------------------------------------------------------------
 Version: 0.0.3
 Date: 05JAN2024
   Changes:
