@@ -371,7 +371,7 @@ local function initialize_settings(index)
     storage.settings[index]["player-trail-scale"] = player_settings["player-trail-scale"].value
     storage.settings[index]["player-trail-speed"] = player_settings["player-trail-speed"].value
     storage.settings[index]["player-trail-sync"] = player_settings["player-trail-sync"].value
-    storage.settings[index]["player-trail-palette"] = player_settings["player-trail-palette"].value
+    storage.settings[index]["player-trail-theme"] = player_settings["player-trail-theme"].value
     storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
     storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
 end
@@ -474,7 +474,7 @@ local function draw_new_trail_segment(player)
     local scale = tonumber(player_settings["player-trail-scale"]) --[[@as integer]]
     local speed = speeds[player_settings["player-trail-speed"]] --[[@as number]]
     local frequency = speed / 5
-    local theme_name = player_settings["player-trail-palette"] --[[@as string]]
+    local theme_name = player_settings["player-trail-theme"] --[[@as string]]
 
     -- Determine the color (rainbow or static) once, reuse for both sprite and light
     local trail_color = get_trail_color(player, player_settings, event_tick, frequency, theme_name)
