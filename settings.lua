@@ -1,5 +1,5 @@
 
-local rainbowColorSetting = {
+local sprite = {
     type = "bool-setting",
     name = "player-trail-color",
     setting_type = "runtime-per-user",
@@ -7,7 +7,7 @@ local rainbowColorSetting = {
     default_value = true
 }
 
-local rainbowGlowSetting = {
+local light = {
     type = "bool-setting",
     name = "player-trail-glow",
     setting_type = "runtime-per-user",
@@ -15,7 +15,7 @@ local rainbowGlowSetting = {
     default_value = true
 }
 
-local rainbowAnimateSetting = {
+local animate = {
     type = "bool-setting",
     name = "player-trail-animate",
     setting_type = "runtime-per-user",
@@ -23,7 +23,7 @@ local rainbowAnimateSetting = {
     default_value = true
 }
 
-local rainbowTaperSetting = {
+local taper = {
     type = "bool-setting",
     name = "player-trail-taper",
     setting_type = "runtime-per-user",
@@ -31,7 +31,7 @@ local rainbowTaperSetting = {
     default_value = true
 }
 
-local rainbowSyncSetting = {
+local sync = {
     type = "bool-setting",
     name = "player-trail-sync",
     setting_type = "runtime-per-user",
@@ -39,7 +39,7 @@ local rainbowSyncSetting = {
     default_value = false
 }
 
-local rainbowScaleSetting = {
+local scale = {
     type = "string-setting",
     name = "player-trail-scale",
     setting_type = "runtime-per-user",
@@ -58,7 +58,7 @@ local rainbowScaleSetting = {
     }
 }
 
-local rainbowLengthSetting = {
+local lenght = {
     type = "string-setting",
     name = "player-trail-length",
     setting_type = "runtime-per-user",
@@ -77,7 +77,7 @@ local rainbowLengthSetting = {
     }
 }
 
-local rainbowColorTypeSetting = {
+local color_type = {
     type = "string-setting",
     name = "player-trail-type",
     setting_type = "runtime-per-user",
@@ -89,7 +89,7 @@ local rainbowColorTypeSetting = {
     }
 }
 
-local rainbowPaletteSetting = {
+local theme = {
     type = "string-setting",
     name = "player-trail-theme",
     setting_type = "runtime-per-user",
@@ -150,7 +150,7 @@ local rainbowPaletteSetting = {
     }
 }
 
-local rainbowSpeedSetting = {
+local speed = {
     type = "string-setting",
     name = "player-trail-speed",
     setting_type = "runtime-per-user",
@@ -165,31 +165,15 @@ local rainbowSpeedSetting = {
     }
 }
 
--- local rainbowTrailsBalance = {
---   type = "string-setting",
---   name = "player-trail-balance",
---   setting_type = "runtime-global",
---   order = "k",
---   default_value = "super-pretty",
---   allowed_values = {
---     -- "super-performance",
---     "performance",
---     "balanced",
---     "pretty",
---     "super-pretty"
---   }
--- }
-
 data:extend({
-    rainbowColorSetting,
-    rainbowGlowSetting,
-    rainbowAnimateSetting,
-    rainbowTaperSetting,
-    rainbowSyncSetting,
-    rainbowScaleSetting,
-    rainbowLengthSetting,
-    rainbowColorTypeSetting,
-    rainbowPaletteSetting,
-    rainbowSpeedSetting,
-    -- rainbowTrailsBalance
+    sprite,
+    light,
+    animate,
+    taper,
+    sync,
+    scale,
+    lenght,
+    color_type,
+    theme,
+    speed,
 })
