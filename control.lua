@@ -370,7 +370,6 @@ local function initialize_settings(index)
     storage.settings[index]["player-trail-length"] = player_settings["player-trail-length"].value
     storage.settings[index]["player-trail-scale"] = player_settings["player-trail-scale"].value
     storage.settings[index]["player-trail-speed"] = player_settings["player-trail-speed"].value
-    storage.settings[index]["player-trail-sync"] = player_settings["player-trail-sync"].value
     storage.settings[index]["player-trail-theme"] = player_settings["player-trail-theme"].value
     storage.settings[index]["player-trail-taper"] = player_settings["player-trail-taper"].value
     storage.settings[index]["player-trail-type"] = player_settings["player-trail-type"].value
@@ -440,8 +439,7 @@ end
 local function get_trail_color(player, player_settings, event_tick, frequency, theme_name)
     local rainbow_color = player.color
     if player_settings["player-trail-type"] == "rainbow" then
-        local tick = player_settings["player-trail-sync"] and player.index or event_tick
-        rainbow_color = get_rainbow_color(tick, player.index, frequency, theme_name)
+        rainbow_color = get_rainbow_color(event_tick, player.index, frequency, theme_name)
     end
     return rainbow_color
 end
@@ -516,9 +514,8 @@ local function animate_existing_trail(trail_data, current_tick)
         end
         trail_data.scale = scale
     end
-    if player_settings["player-trail-animate"] and player_settings["player-trail-type"] == "rainbow" then
-        local created_tick = player_settings["player-trail-sync"] and player_index or trail_data.tick
-        local rainbow_color = get_rainbow_color(created_tick, player_index, trail_data.frequency, trail_data.theme_name)
+    if player_settings["player-trail-animate"] and (player_settings["player-trail-type"] == "rainbow") then
+        local rainbow_color = get_rainbow_color(trail_data.tick, player_index, trail_data.frequency, trail_data.theme_name)
         render_object.color = rainbow_color
     end
 end

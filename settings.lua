@@ -31,14 +31,6 @@ local taper = {
     default_value = true
 }
 
-local sync = {
-    type = "bool-setting",
-    name = "player-trail-sync",
-    setting_type = "runtime-per-user",
-    order = "e",
-    default_value = false
-}
-
 local scale = {
     type = "string-setting",
     name = "player-trail-scale",
@@ -170,7 +162,6 @@ data:extend({
     light,
     animate,
     taper,
-    sync,
     scale,
     lenght,
     color_type,
