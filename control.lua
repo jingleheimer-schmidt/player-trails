@@ -618,8 +618,6 @@ local function on_player_joined_game(event)
     initialize_settings(event.player_index)
 end
 
--- script.on_event(defines.events.on_player_changed_position, player_changed_position)
-
 script.on_event(defines.events.on_tick, on_tick)
 script.on_configuration_changed(on_configuration_changed)
 script.on_event(defines.events.on_player_joined_game, on_player_joined_game)
