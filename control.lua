@@ -357,12 +357,12 @@ end
 
 ---@param index integer
 local function initialize_settings(index)
-    local player_settings = settings.get_player_settings(index)
-    if not player_settings then return end
     --[[@type table<integer, trail_segment_data>]]
     storage.trail_data = storage.trail_data or {}
     --[[@type table<integer, table<string, boolean|string|number|Color>>]]
-    storage.settings = {}
+    storage.settings = storage.settings or {}
+    local player_settings = settings.get_player_settings(index)
+    if not player_settings then return end
     storage.settings[index] = {}
     storage.settings[index]["player-trail-enabled"] = player_settings["player-trail-enabled"].value
     storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
