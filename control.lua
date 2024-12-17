@@ -294,6 +294,7 @@ for name, colors in pairs(country_flag_themes) do
 end
 
 local sin = math.sin
+local sqrt = math.sqrt
 local floor = math.floor
 local pi_0 = 0 * math.pi / 3
 local pi_2 = 2 * math.pi / 3
@@ -357,12 +358,12 @@ end
 
 ---@param index integer
 local function initialize_settings(index)
-    local player_settings = settings.get_player_settings(index)
-    if not player_settings then return end
     --[[@type table<integer, trail_segment_data>]]
     storage.trail_data = storage.trail_data or {}
     --[[@type table<integer, table<string, boolean|string|number|Color>>]]
-    storage.settings = {}
+    storage.settings = storage.settings or {}
+    local player_settings = settings.get_player_settings(index)
+    if not player_settings then return end
     storage.settings[index] = {}
     storage.settings[index]["player-trail-enabled"] = player_settings["player-trail-enabled"].value
     storage.settings[index]["player-trail-glow"] = player_settings["player-trail-glow"].value
@@ -381,7 +382,7 @@ end
 ---@return number
 local function distance(pos1, pos2)
     local x1, y1, x2, y2 = pos1.x, pos1.y, pos2.x, pos2.y
-    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
+    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
 end
 
 ---@param draw_type "sprite"|"light"
@@ -616,8 +617,6 @@ end
 local function on_player_joined_game(event)
     initialize_settings(event.player_index)
 end
-
--- script.on_event(defines.events.on_player_changed_position, player_changed_position)
 
 script.on_event(defines.events.on_tick, on_tick)
 script.on_configuration_changed(on_configuration_changed)
