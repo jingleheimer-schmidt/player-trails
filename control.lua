@@ -294,6 +294,7 @@ for name, colors in pairs(country_flag_themes) do
 end
 
 local sin = math.sin
+local sqrt = math.sqrt
 local floor = math.floor
 local pi_0 = 0 * math.pi / 3
 local pi_2 = 2 * math.pi / 3
@@ -381,7 +382,7 @@ end
 ---@return number
 local function distance(pos1, pos2)
     local x1, y1, x2, y2 = pos1.x, pos1.y, pos2.x, pos2.y
-    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
+    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2)
 end
 
 ---@param draw_type "sprite"|"light"
